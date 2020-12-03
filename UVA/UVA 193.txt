@@ -1,0 +1,95 @@
+#include <iostream>
+#include <math.h>
+#include<vector>
+#include<map>
+#include<algorithm>
+#include <list>
+#include<unordered_map>
+#include<set>
+#include<string.h>
+#include<stack>
+#include <iomanip>
+#include<queue>
+#define Flash ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+using namespace std;
+int xDir[8]={0 , 0,-1 ,1 ,1 ,-1 , -1 ,1 };
+int yDir[8]={1 ,-1, 0 ,0 ,1 ,-1 , 1 , -1};
+
+int EPS = 1e-10;
+int dComp(double d1 , double d2){
+    if(abs(d1 - d2) <= EPS)
+        return 0;
+    if(d1 > d2)
+        return 1;
+    else
+        return -1;
+
+}
+enum Color { white, black };
+vector<vector<int> >adj(101);
+int n,m;
+vector<int> bestBlacks, curBlacks;
+vector<Color> curColor;
+
+bool canBeBlack(int cur){
+    for( int i = 0 ; i < adj[cur].size() ; i ++ ){
+        int node = adj[cur][i];
+        if(node == cur || curColor[node] == black)
+            return false;
+    }
+    return true;
+}
+
+void find_solution(int cur ){
+    if(cur == n){
+        if(bestBlacks.size() < curBlacks.size())
+            bestBlacks = curBlacks;
+        return;
+    }
+
+    int max_possible_blacks = n - cur;
+    if( max_possible_blacks + curBlacks.size() <= bestBlacks.size() ){
+        return;
+    }
+
+    if(canBeBlack(cur)){
+         curColor[cur] = black;
+         curBlacks.push_back(cur);
+         find_solution(cur+1);
+         curBlacks.pop_back();
+         curColor[cur] = white;
+    }
+    find_solution(cur+1);
+}
+
+int main()
+{
+    Flash
+    int t,x,y;
+    cin>>t;
+    while(t--){
+       cin>>n>>m;
+       adj.clear();
+       adj.resize(n);
+       curBlacks.clear();
+       bestBlacks.clear();
+       adj = vector<vector<int> >(100);
+       curColor = vector<Color>(n, white);
+       for( int i = 0 ; i < m ; i ++ ){
+           cin>>x>>y;
+           x-- , y -- ;
+           adj[x].push_back(y);
+           adj[y].push_back(x);
+       }
+       find_solution(0);
+       cout<<bestBlacks.size()<<endl;
+       string space="";
+       for( int i = 0 ; i < bestBlacks.size() ; i ++ ){
+           cout<<space<<bestBlacks[i]+1;
+           space = " ";
+       }
+       cout<<endl;
+    }
+    return 0;
+}
+
